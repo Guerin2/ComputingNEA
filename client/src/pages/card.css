@@ -1,0 +1,11 @@
+.container{
+	display: grid;
+	width: 1fr;
+	grid-template-columns: repeat(9, 1fr);
+	grid-gap: 1em;
+	padding-top: 20px;
+}
+
+.c1{font-style: italic;background-color: grey; }
+.c2{background-color: white;}
+
