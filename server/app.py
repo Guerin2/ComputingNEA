@@ -96,8 +96,14 @@ def game_startup():
     user_id = session.get("user_id")
     conn = sqlite3.connect(dbPath)
     cursor = conn.cursor()
-    cursor.execute(f"SELECT MAX(roomCode) FROM games")
-    roomCode = int(cursor.fetchone()[0])+1
+    cursor.execute(f"SELECT roomCode FROM games")
+    ret = cursor.fetchall()
+    roomCode = 1
+    for i in ret:
+        if int(i[0])>roomCode:
+            roomCode = int(i[0])
+    roomCode+=1
+    print(roomCode)
     tblName = "room"+str(roomCode)
     cursor.execute(f"CREATE TABLE IF NOT EXISTS {tblName} (id varchar(32) REFERENCES users(id) PRIMARY KEY UNIQUE,gameSeed varChar(32), score INTEGER)")
     numberSeq = makeNumberSequence()
@@ -174,21 +180,28 @@ def getPlayers(roomCode):
          str += names[0]+" "
     return jsonify({"names":str}),200
 
-
 @app.route("/host/game/<roomCode>/call", methods=["POST"])
 def callNumber(roomCode):
+    tblName = "room"+roomCode
+    callNum = []
     conn =sqlite3.connect(dbPath)
     cursor = conn.cursor()
     cursor.execute(f"SELECT gameSequence,depth FROM games WHERE roomCode=='{roomCode}'")
     ret = cursor.fetchone()
     callSeq = str(ret[0])
     depth = int(ret[1])
-    callNum = callSeq[depth*2:depth*2+2]
+    for i in range (0,5):
+        if depth - i >0:
+            callNum.append(callSeq[(depth-i)*2:(depth-i)*2+2])
     cursor.execute(f"UPDATE games SET depth = {depth+1}, winnerID = '' WHERE roomCode=={roomCode}")
+
+    cursor.execute(f"SELECT users.userName, {tblName}.score FROM users INNER JOIN {tblName} ON users.id = {tblName}.id  WHERE {tblName}.gameSeed != 'Owner' ORDER BY {tblName}.score DESC")
+    leaderBoard = cursor.fetchall()
+
     
     conn.commit()
     conn.close()
-    return callNum,200
+    return jsonify({"numbers":callNum , "leaderboard":leaderBoard}),200
 
 @app.route("/host/game/<roomCode>/endGame", methods=["POST"])
 def endGame(roomCode):
@@ -401,6 +414,36 @@ def getLeaderBoard(clubId):
     conn.close()
 
     return jsonify({"Leaderboard":arr,"Name":n}),200
+
+
+@app.route("/host/game/<roomCode>/checkHost", methods = ["POST"])
+def checkHost(roomCode):
+    tblName = "room"+roomCode
+    id = session.get("user_id")
+    conn = sqlite3.connect(dbPath)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT id FROM {tblName}  WHERE gameSeed = 'Owner'")
+    properId = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    if properId[0] != id:
+        return "Not Authed", 201
+    return "",200
+    
+@app.route("/player/game/<roomCode>/checkScore",methods = ["POST"])
+def checkScore(roomCode):
+    score = request.json["states"].count(True) -12
+    tblName = "room"+roomCode
+    id = session.get("user_id")
+    conn = sqlite3.connect(dbPath)
+    cursor = conn.cursor()
+    cursor.execute(f"UPDATE {tblName} SET SCORE = {score} WHERE id = '{id}'")
+    conn.commit()
+    conn.close()
+    return "",200
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -44,9 +44,14 @@ const PlayerPageLobby = () =>{
     const {roomCode} = useParams()
 
 
-    const changeButtonStates = (i)=>{
+    const changeButtonStates = async(i)=>{
+        
         seSelected(Math.random()) // idfk
         buttonStates[i] = !buttonStates[i]
+        const response = await httpClient.post("//localhost:5000/player/game/"+roomCode+"/checkScore",{
+            "states":buttonStates
+        })
+
     }
 
     let bingoCheck = async()=>{
@@ -78,7 +83,6 @@ const PlayerPageLobby = () =>{
             <h1>You Are In The Game</h1>
             <h1>Game ID: {roomCode}</h1>
 
-            
             <div className="container">
                 {card.map(value =>(
                     <button key = {value[1]} name={value[1]} disabled = {(value[0] == 0)} onClick = {()=>changeButtonStates(value[1])} className={`${buttonStates[value[1]] ? "c1" : "c2"}`}>
