@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import httpClient from "../httpClient";
+import apiRoute from "../flaskroute"
 
 const LoginPage = () =>{
     const [email, setEmail] = useState("");
@@ -8,7 +9,7 @@ const LoginPage = () =>{
     let logInUser = async ()=>{
         console.log(email,password);
         try{
-            const resp = await httpClient.post("//localhost:5000/login", {
+            const resp = await httpClient.post(apiRoute+"login", {
                 email,
                 password,
             });

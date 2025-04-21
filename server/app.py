@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, send_from_directory
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS, cross_origin
 from config import ApplicationConfig
-from models import db, User
+import models
 from flask_session.__init__ import Session
 import sqlite3
 from uuid import uuid4
@@ -71,7 +71,6 @@ def login_user():
     ret = cursor.fetchall()
     id = ret[0][0]
     passwordSto = ret[0][1]
-    app.logger.info("---------------------------------------------------------------------",ret)
     if passwordSto is None:
         return jsonify({"error": "Unauthorised"}), 400
     
@@ -144,7 +143,6 @@ def joinLobby(roomCode):
     
     if exists[0][0] == 0:
         return "0",201
-    
     
     try:
         cursor.execute(f"INSERT INTO {tblName} VALUES('{id}','{gameSeed}',0)")
@@ -356,7 +354,7 @@ def createClub():
     cursor.execute(f"INSERT INTO userToClub VALUES('{id}','{newId}')")
     conn.commit()
     conn.close()
-    return "balls",200
+    return "",200
 
 @app.route("/joinClub", methods = ["POST"])
 def joinClub():
@@ -372,10 +370,10 @@ def joinClub():
     if not bcrypt.check_password_hash(passwordSto, password):
         return jsonify({"error": "Unauthorised"}), 401
     
-    cursor.execute(f"INSERT INTO userToClub VALUES ('{id}','{clubId}')") # Make only unique values
+    cursor.execute(f"""INSERT OR IGNORE INTO userToClub VALUES('{id}','{clubId}') """) # Make only unique values
     conn.commit()
     conn.close()
-    return "balls",200
+    return "",200
 
 
 @app.route("/getClubs", methods = ["POST"])
@@ -407,13 +405,12 @@ def getLeaderBoard(clubId):
                                       """)
     
     arr = cursor.fetchall()
-
-    cursor.execute(f"SELECT name FROM clubs WHERE clubId = '{clubId}'")
+    cursor.execute(f"SELECT name , desc FROM clubs WHERE clubId = '{clubId}'")
     n = cursor.fetchone()
     conn.commit()
     conn.close()
 
-    return jsonify({"Leaderboard":arr,"Name":n}),200
+    return jsonify({"Leaderboard":arr,"Name":n[0],"Desc":n[1]}),200
 
 
 @app.route("/host/game/<roomCode>/checkHost", methods = ["POST"])
@@ -443,10 +440,8 @@ def checkScore(roomCode):
     return "",200
 
 
-
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host ='192.168.1.16',port=5000,debug=True)
 
 
 

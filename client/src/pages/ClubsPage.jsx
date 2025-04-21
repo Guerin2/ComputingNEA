@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import httpClient from "../httpClient";
 import { useParams } from 'react-router-dom';
+import apiRoute from "../flaskroute"
 
 const ClubsPage = () =>{
     const[name,setId] = useState("")
@@ -14,7 +15,7 @@ const ClubsPage = () =>{
 
     let createClub = async ()=>{
                 try{
-                    const resp = await httpClient.post("//localhost:5000/createClub", {
+                    const resp = await httpClient.post(apiRoute+"createClub", {
                         "clubName":makeName,
                         "clubDesc":makeDesc,
                         "password":makePassword
@@ -36,7 +37,7 @@ const ClubsPage = () =>{
 
     let joinClub = async ()=>{
             try{
-                const resp = await httpClient.post("//localhost:5000/joinClub", {
+                const resp = await httpClient.post(apiRoute+"joinClub", {
                     "clubId":name,
                     "password":password
                 });
@@ -59,7 +60,7 @@ const ClubsPage = () =>{
 
     useEffect(() => {
                 (async () =>{
-                    const resp = await httpClient.post("//localhost:5000/getClubs")
+                    const resp = await httpClient.post(apiRoute+"getClubs")
                     console.log(resp.status)
                     setClubNames(resp.data["Clubs"])
                     setRespStatus(resp.status)

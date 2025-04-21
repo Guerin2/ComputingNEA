@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import httpClient from "../httpClient";
 import { useParams } from 'react-router-dom';
+import apiRoute from "../flaskroute"
+
 
 const ClubPage = () =>{
 
@@ -8,13 +10,16 @@ const ClubPage = () =>{
     const[respStatus, setRespStatus] = useState();
     const[Leaderboard,setLeaderboard] = useState();
     const[clubName,setClubName]= useState("");
+    const[clubDesc,setClubDesc] = useState("")
 
     useEffect(() => {
                 (async () =>{
-                    const resp = await httpClient.post("//localhost:5000//clubLeaderboard/"+clubId)
+                    const resp = await httpClient.post(apiRoute+"clubLeaderboard/"+clubId)
                     console.log(resp.status)
                     setLeaderboard(resp.data["Leaderboard"])
                     setClubName(resp.data["Name"])
+                    setClubDesc(resp.data["Desc"])
+
                     setRespStatus(resp.status)
                     }
                 )()
@@ -28,6 +33,7 @@ const ClubPage = () =>{
         <div>
             <div>
             <h1>{clubName} </h1>
+            <h2>{clubDesc}</h2>
             {Leaderboard.map(value =>(
                     <h3 key = {value[1]} name={value[1]}  >
                         {value[0]}: {value[1]}

@@ -1,17 +1,18 @@
 import React , {useState, useEffect} from 'react';
 import User from "../types";
 import httpClient from '../httpClient';
+import apiRoute from "../flaskroute"
 
 const LandingPage= () =>{
     const [user,setUser] = useState(User || null)
     const [target,setTarget] = useState("")
     const logoutUser = async()=>{
-        const resp = await httpClient.post("//localhost:5000/logout")
+        const resp = await httpClient.post(apiRoute+"logout")
         window.location.assign("/")
     }
 
     const hostGame = async()=>{
-        const resp = await httpClient.get("//localhost:5000/host/makeRoomCode")
+        const resp = await httpClient.get(apiRoute+"host/makeRoomCode")
         window.location.assign("/host/lobby/"+resp.data.roomCode)
     }
 
@@ -27,7 +28,7 @@ const LandingPage= () =>{
     useEffect(() => {
         (async () =>{
             try{
-                const resp = await httpClient.get("//localhost:5000/@me")
+                const resp = await httpClient.get(apiRoute+"@me")
             setUser(resp.data)
             }catch(error){
                 console.log("Not authed")

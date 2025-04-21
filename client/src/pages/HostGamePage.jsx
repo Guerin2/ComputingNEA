@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import httpClient from "../httpClient";
 import { useParams } from 'react-router-dom';
+import apiRoute from "../flaskroute"
 
 const HostGamePage = () =>{
     
@@ -12,30 +13,30 @@ const HostGamePage = () =>{
     
     
     const callNumber = async()=>{
-        const resp = await httpClient.post("//localhost:5000/host/game/"+roomCode+"/call")
+        const resp = await httpClient.post(apiRoute+"host/game/"+roomCode+"/call")
         setNumbers(resp.data["numbers"])
         setLeaderboard(resp.data["leaderboard"])
     }
 
     const endGame = async()=>{
-        const resp = await httpClient.post("//localhost:5000/host/game/"+roomCode+"/endGame") //We are in the end game now
+        const resp = await httpClient.post(apiRoute+"host/game/"+roomCode+"/endGame") //We are in the end game now
         window.location.assign("/")
     }
 
     const checkWinner = async()=>{
-        const resp = await httpClient.post("//localhost:5000/"+roomCode+"/checkWinner")
+        const resp = await httpClient.post(apiRoute+roomCode+"/checkWinner")
         setWinner(resp.data["winner"])
     }
 
     const defaultWinner= async()=>{
-        const resp = await httpClient.post("//localhost:5000/"+roomCode+"/backToGame")
+        const resp = await httpClient.post(apiRoute+roomCode+"/backToGame")
         setWinner('')
     }
 
 
     useEffect(() => {
             (async () =>{
-                const resp = await httpClient.post("//localhost:5000/host/game/"+roomCode+"/checkHost")
+                const resp = await httpClient.post(apiRoute+"host/game/"+roomCode+"/checkHost")
                 if (resp.status != 200){
                     window.location.assign("/")
                 }

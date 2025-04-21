@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import httpClient from "../httpClient";
 import { data, useParams } from 'react-router-dom';
 import './card.css'
+import apiRoute from "../flaskroute"
 
 <link rel="stylesheet" href = "card.css"/>
 
@@ -48,14 +49,14 @@ const PlayerPageLobby = () =>{
         
         seSelected(Math.random()) // idfk
         buttonStates[i] = !buttonStates[i]
-        const response = await httpClient.post("//localhost:5000/player/game/"+roomCode+"/checkScore",{
+        const response = await httpClient.post(apiRoute+"player/game/"+roomCode+"/checkScore",{
             "states":buttonStates
         })
 
     }
 
     let bingoCheck = async()=>{
-        const response = await httpClient.post("//localhost:5000/"+roomCode+"/checkBingo",{
+        const response = await httpClient.post(apiRoute+roomCode+"/checkBingo",{
             "states":buttonStates
         })
     }
@@ -66,7 +67,7 @@ const PlayerPageLobby = () =>{
 
     useEffect(() => {
             (async () =>{
-                const resp = await httpClient.post("//localhost:5000/player/game/"+roomCode)
+                const resp = await httpClient.post(apiRoute+"player/game/"+roomCode)
                 console.log(resp.status)
                 setRespStatus(resp.status)
                 setCard(parseBingoString(resp.data.card))

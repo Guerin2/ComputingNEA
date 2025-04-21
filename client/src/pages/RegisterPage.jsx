@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import httpClient from "../httpClient";
+import apiRoute from "../flaskroute"
 
 const RegisterPage = () =>{
     const [email, setEmail] = useState("");
@@ -8,13 +9,13 @@ const RegisterPage = () =>{
 
     let registerUser = async ()=>{
         try{
-            const resp = await httpClient.post("//localhost:5000/register", {
+            const resp = await httpClient.post(apiRoute+"register", {
                 email,
                 password,
                 userName,
             });
 
-            if (resp.status ==200){
+            if (resp.status ===200){
                 window.location.assign("/")
             }
 

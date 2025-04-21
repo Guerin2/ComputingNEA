@@ -1,4 +1,5 @@
 import React from 'react'
+import apiRoute from "../flaskroute"
 
 const NotFound = ()=>{
     return (

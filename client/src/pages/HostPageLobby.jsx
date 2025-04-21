@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import httpClient from "../httpClient";
 import { useParams } from 'react-router-dom';
+import apiRoute from "../flaskroute"
 
 
 
@@ -10,11 +11,11 @@ const HostPageLobby = () =>{
     const[names,setNames] = useState("")
     
     const refreshPlayers = async()=>{
-        const resp = await httpClient.post("//localhost:5000/host/lobby/"+roomCode+"/getPlayers")
+        const resp = await httpClient.post(apiRoute+"host/lobby/"+roomCode+"/getPlayers")
         setNames(resp.data["names"])
     }
     const startGame = async()=>{
-        const resp = await httpClient.post("//localhost:5000/host/game/"+roomCode+"/begin")
+        const resp = await httpClient.post(apiRoute+"host/game/"+roomCode+"/begin")
         window.location.assign("/host/game/"+roomCode)
     }
     
