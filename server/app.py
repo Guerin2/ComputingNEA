@@ -19,7 +19,9 @@ bcrypt = Bcrypt(app)
 CORS(app, supports_credentials=True)
 server_session = Session(app)
 
+
 dbPath = "../instance/db.sqlite3"
+
 
 @app.route("/@me")
 def get_current_user():
@@ -30,12 +32,14 @@ def get_current_user():
     
     conn = sqlite3.connect(dbPath)
     cursor = conn.cursor()
-    cursor.execute(f"SELECT email FROM users WHERE id = '{id}'")
+    cursor.execute(f"SELECT email, userName FROM users WHERE id = '{id}'")
     ret = cursor.fetchall()
     email = ret[0][0]
+    userName = ret[0][1]
     return jsonify({
         "id":id,
-        "email": email
+        "email": email,
+        "userName": userName
     })
 
 @app.route("/register", methods =["POST"])
@@ -78,7 +82,7 @@ def login_user():
         return jsonify({"error": "Unauthorised"}), 401
     
     session["user_id"] = id
-    
+    session.modified = True
     return jsonify({
         "id":id,
         "email":email
@@ -237,7 +241,14 @@ def makeBingoCard():
             dup = []
             j= 0
             while j < 3:
-                rand = random.randint(i*10+1,i*10+10)
+                ##Change Begin ---------------------------------
+                if i==0:
+                    rand = random.randint(i*10+1,i*10+9)
+                elif i == 8:
+                    rand = random.randint(i*10,i*10+10)
+                else:
+                    rand = random.randint(i*10,i*10+9)
+                ##Change End -----------------------------------
                 if dup.count((rand)) == 0:
                     dup.append((rand))
                     j+=1
@@ -273,7 +284,6 @@ def checkBingo(roomCode):
 
     for i in range(0,3):
         if states[i*9:(i+1)*9] == [True,True,True,True,True,True,True,True,True]:
-            app.logger.info(states[i*9:(i+1)*9])
             row = i
 
 
@@ -287,19 +297,15 @@ def checkBingo(roomCode):
             arr[i%3].append(int(cardarr[i]))
     totalCard = arr[0]+arr[1]+arr[2]
     
-    if winCon =='l':
-        app.logger.info("hello")
-        bingo = set(arr[row])<=set(validInts)
-        app.logger.info(arr[row])
-        if bingo:
-            conn.execute(f"UPDATE games SET winCon ='h', winnerID = '{id}' WHERE roomCode = '{roomCode}'")
-    else:
-        bingo = set(totalCard)<=set(validInts)
-        if bingo:
-            conn.execute(f"UPDATE games SET winCon ='d', winnerID = '{id}' WHERE roomCode = '{roomCode}'")
-    app.logger.info(winCon)
-    app.logger.info(sorted(validNumbers))
-    app.logger.info(bingo)
+    if winCon =='l' and set(arr[row])<=set(validInts):
+        conn.execute(f"UPDATE games SET winCon ='h', winnerID = '{id}' WHERE roomCode = '{roomCode}'")
+    elif winCon == 'h' and set(totalCard)<=set(validInts) and all(states):
+        conn.execute(f"UPDATE games SET winCon ='d', winnerID = '{id}' WHERE roomCode = '{roomCode}'")
+    
+    app.logger.info(states)
+    app.logger.info(all(states))
+    app.logger.info(set(totalCard)<=set(validInts))
+    app.logger.info(winCon == 'h')
     conn.commit()
     conn.close()
     return "",200
@@ -312,12 +318,13 @@ def checkWinner(roomCode):
     cursor = conn.cursor()
     cursor.execute(f"SELECT users.userName, users.id from users INNER JOIN games ON users.id=games.winnerID WHERE games.roomCode = '{roomCode}'") 
     w = cursor.fetchone()
-    if w == None:
+    if w == None or w == '':
         return jsonify({"winner":""})
     winner = w[0]
     tid = w[1]
 
     cursor.execute(f"UPDATE users SET score=score+1 WHERE id = '{tid}'")
+    cursor.execute(f"UPDATE games SET winnerID = ''")
     conn.commit()
     conn.close()
     app.logger.info(winner)
@@ -388,8 +395,6 @@ def getPlayerClubs():
     arr = cursor.fetchall()
     conn.commit()
     conn.close()
-
-    app.logger.info(arr)
     return jsonify({"Clubs": arr}),200
 
 @app.route("/clubLeaderboard/<clubId>",methods = ["POST"])
@@ -397,20 +402,24 @@ def getLeaderBoard(clubId):
     id = session.get("user_id")
     conn = sqlite3.connect(dbPath)
     cursor = conn.cursor()
-    cursor.execute(f"""SELECT users.username, users.score 
+    cursor.execute(f"""SELECT users.username, users.score,users.id 
                    FROM users 
-                   FULL OUTER JOIN userToClub ON users.id = userToClub.userId
+                   INNER JOIN userToClub ON users.id = userToClub.userId
                    WHERE userToClub.clubId = '{clubId}'
                    ORDER BY users.score DESC
                                       """)
     
     arr = cursor.fetchall()
     cursor.execute(f"SELECT name , desc FROM clubs WHERE clubId = '{clubId}'")
+    
     n = cursor.fetchone()
+
+    cursor.execute(f"SELECT owner FROM clubs WHERE clubId = '{clubId}'")
+    perms = id == cursor.fetchone()[0]
     conn.commit()
     conn.close()
 
-    return jsonify({"Leaderboard":arr,"Name":n[0],"Desc":n[1]}),200
+    return jsonify({"Leaderboard":arr,"Name":n[0],"Desc":n[1],"Perms":perms}),200
 
 
 @app.route("/host/game/<roomCode>/checkHost", methods = ["POST"])
@@ -440,8 +449,43 @@ def checkScore(roomCode):
     return "",200
 
 
+@app.route("/kickFromClub",methods = ["POST"])
+def kickFromClub():
+    id = session.get("user_id")
+    clubId = request.json["clubId"]
+    kickedId = request.json["userId"]
+    conn = sqlite3.connect(dbPath)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT owner FROM clubs WHERE clubId = '{clubId}'")
+    owner =cursor.fetchone()[0]
+    if  owner != id or kickedId == owner:
+        app.logger.info("Not Kicked")
+        return "Not Authed",200
+    cursor.execute(f"DELETE FROM userToClub WHERE userId = '{kickedId}' and clubId = '{clubId}'")
+    conn.commit()
+    conn.close()
+    return "",200
+
+@app.route("/deleteClub",methods = ["POST"])
+def deleteClub():
+    id = session.get("user_id")
+    clubId = request.json["clubId"]
+    conn = sqlite3.connect(dbPath)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT owner FROM clubs WHERE clubId = '{clubId}'")
+    owner =cursor.fetchone()[0]
+    if  owner != id:
+        app.logger.info("Not Kicked")
+        return "Not Authed",200
+    app.logger.info("Deleting "+clubId)
+    cursor.execute(f"DELETE FROM clubs WHERE clubId ='{clubId}'")
+    cursor.execute(f"DELETE FROM userToClub WHERE clubId = '{clubId}'")
+    conn.commit()
+    conn.close()
+    return "",200
+
+
 if __name__ == "__main__":
-    app.run(host ='192.168.1.16',port=5000,debug=True)
+    app.run(host ='localhost',port=5000,debug=True)
 
-
-
+#host ='192.168.1.16'

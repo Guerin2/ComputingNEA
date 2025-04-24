@@ -42,7 +42,7 @@ const LandingPage= () =>{
         <h1>Welcome to Local Bingo</h1>
         {(user != null) ? (
             <div>
-                <h2>Logged In</h2>
+                <h2>Welcome {user.userName}</h2>
                 <h3> Email: {user.email}</h3>
                 <h3>ID: {user.id}</h3>
                 

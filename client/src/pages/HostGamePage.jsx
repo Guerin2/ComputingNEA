@@ -49,7 +49,7 @@ const HostGamePage = () =>{
         (winner == '') ? (
         <div>
             
-            <h1>HOST GAME</h1>
+            <h1>Host Game</h1>
             <h1>Game ID: {roomCode}</h1>
             <h1>Number:{numbers[0]} </h1>
             <h2>Previous Numbers: {numbers[1]} {numbers[2]} {numbers[3]} {numbers[4]}</h2>

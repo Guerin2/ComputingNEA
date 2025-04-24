@@ -7,7 +7,7 @@ import apiRoute from "../flaskroute"
 <link rel="stylesheet" href = "card.css"/>
 
 
-var buttonStates = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]
+var buttonStates = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]
 
 
 

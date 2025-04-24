@@ -1,6 +1,7 @@
 const User = {
     id: String , 
-    email:String
+    email:String,
+    userName: String
 }
 
 

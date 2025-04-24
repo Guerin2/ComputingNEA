@@ -22,7 +22,7 @@ const HostPageLobby = () =>{
 
     return(
         <div>
-            <h1>Hey</h1>
+            <h1>Host Lobby</h1>
             <h1>Game ID: {roomCode}</h1>
             <h3>Players: {names}</h3>
             <button type = "button" onClick={()=>refreshPlayers()}>

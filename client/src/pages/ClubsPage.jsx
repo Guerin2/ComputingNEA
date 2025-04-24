@@ -22,7 +22,7 @@ const ClubsPage = () =>{
                     });
         
                     if (resp.status ==200){
-                        window.location.assign("/")
+                        window.location.assign("/clubs")
                     }
         
                     console.log(resp.data);
@@ -43,7 +43,7 @@ const ClubsPage = () =>{
                 });
     
                 if (resp.status ===200){
-                    window.location.assign("/")
+                    window.location.assign("/clubs")
                 }
     
                 console.log(resp.data);
@@ -55,6 +55,10 @@ const ClubsPage = () =>{
 
     const gotoClub = async(arg) =>{
         window.location.assign("/clubs/"+arg)
+    }
+
+    const goHome = async()=>{
+        window.location.assign("/")
     }
 
 
@@ -135,6 +139,7 @@ const ClubsPage = () =>{
                     Submit
                 </button>
             </form>
+            <button onClick={()=>goHome()}>Home</button>
         </div>
     ):(
         <div>
