@@ -3,7 +3,4 @@ const User = {
     email:String,
     userName: String
 }
-
-
-
 export default User

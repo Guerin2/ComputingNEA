@@ -1,5 +1,4 @@
 flask
-flask-sqlalchemy
 flask-bcrypt
 python-dotenv
 flask-session

@@ -3,9 +3,6 @@ import httpClient from "../httpClient";
 import { useParams } from 'react-router-dom';
 import apiRoute from "../flaskroute"
 
-
-
-
 const HostPageLobby = () =>{
     const {roomCode} = useParams()
     const[names,setNames] = useState("")
@@ -19,7 +16,6 @@ const HostPageLobby = () =>{
         window.location.assign("/host/game/"+roomCode)
     }
     
-
     return(
         <div>
             <h1>Host Lobby</h1>

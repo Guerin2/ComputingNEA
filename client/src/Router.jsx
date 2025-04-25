@@ -8,6 +8,7 @@ import PlayerPageLobby from './pages/PlayerPageLobby'
 import HostGamePage from './pages/HostGamePage'
 import ClubsPage from './pages/ClubsPage'
 import ClubPage from './pages/ClubPage'
+import NotFound from './pages/NotFound'
 
 
 
@@ -24,6 +25,7 @@ const Router = () =>{
                 <Route path="/host/game/:roomCode" exact element={<HostGamePage/>}/>
                 <Route path="/clubs" exact element={<ClubsPage/>}/>
                 <Route path="/clubs/:clubId" exact element={<ClubPage/>}/>
+                <Route exact element = {<NotFound/>}/>
             </Routes>
         </BrowserRouter>
     );

@@ -15,7 +15,7 @@ const ClubsPage = () =>{
 
     let createClub = async ()=>{
                 try{
-                    const resp = await httpClient.post(apiRoute+"createClub", {
+                    const resp = await httpClient.post(apiRoute+"clubs/createClub", {
                         "clubName":makeName,
                         "clubDesc":makeDesc,
                         "password":makePassword
@@ -24,20 +24,15 @@ const ClubsPage = () =>{
                     if (resp.status ==200){
                         window.location.assign("/clubs")
                     }
-        
                     console.log(resp.data);
                 } catch(error){
                     alert(error)
                 } 
             };
 
-
-
-
-
     let joinClub = async ()=>{
             try{
-                const resp = await httpClient.post(apiRoute+"joinClub", {
+                const resp = await httpClient.post(apiRoute+"clubs/joinClub", {
                     "clubId":name,
                     "password":password
                 });
@@ -53,7 +48,7 @@ const ClubsPage = () =>{
         };
 
 
-    const gotoClub = async(arg) =>{
+    const gotoClub = async(arg) =>{ //goes to clicked on club
         window.location.assign("/clubs/"+arg)
     }
 
@@ -62,9 +57,9 @@ const ClubsPage = () =>{
     }
 
 
-    useEffect(() => {
+    useEffect(() => { // data to make buttons for all user clubs
                 (async () =>{
-                    const resp = await httpClient.post(apiRoute+"getClubs")
+                    const resp = await httpClient.post(apiRoute+"clubs/getClubs")
                     console.log(resp.status)
                     setClubNames(resp.data["Clubs"])
                     setRespStatus(resp.status)
@@ -83,7 +78,7 @@ const ClubsPage = () =>{
             {clubNames.map(value =>(
                     <button key = {value[1]} name={value[1]}  onClick = {()=>gotoClub(value[1])} >
                         {value[0]}
-                        </button>
+                    </button>
                 ))}
             </div>
 

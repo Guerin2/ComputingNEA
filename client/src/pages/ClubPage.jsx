@@ -3,7 +3,6 @@ import httpClient from "../httpClient";
 import { useParams } from 'react-router-dom';
 import apiRoute from "../flaskroute"
 
-
 const ClubPage = () =>{
 
     const {clubId} = useParams()
@@ -18,7 +17,7 @@ const ClubPage = () =>{
     const kickFromClub = async(id)=>{
 
         try {
-            httpClient.post(apiRoute+"kickFromClub",{
+            httpClient.post(apiRoute+"clubs/kickFromClub",{
                 "userId": id,
                 "clubId":clubId
             })
@@ -30,7 +29,7 @@ const ClubPage = () =>{
     const deleteClub = async(id)=>{
 
         try {
-            const resp = await httpClient.post(apiRoute+"deleteClub",{
+            const resp = await httpClient.post(apiRoute+"clubs/deleteClub",{
                 "clubId":clubId
             })
             window.location.assign("/clubs")
@@ -39,12 +38,11 @@ const ClubPage = () =>{
         }
     }
 
-
-
-
-    useEffect(() => {
+    useEffect(() => { //Get all information for the club
                 (async () =>{
-                    const resp = await httpClient.post(apiRoute+"clubLeaderboard/"+clubId)
+                    const resp = await httpClient.post(apiRoute+"clubs/clubLeaderboard/",{
+                        "clubId":clubId
+                })
                     console.log(resp.status)
                     setLeaderboard(resp.data["Leaderboard"])
                     setClubName(resp.data["Name"])
@@ -59,15 +57,15 @@ const ClubPage = () =>{
 
     return(
         <div>
-        {( respStatus === 200)?(
+        {( respStatus === 200)?( // Check if response has come back
         <div>
             <h1>{clubName} </h1>
             <h2>Club Id: {clubId}</h2>
             <h2>{clubDesc}</h2>
-            {Leaderboard.map(value =>(
+            {Leaderboard.map(value =>( // Maps all values in leaderboard array to headers
                 <div>
                     <h3 key = {value[2]} name={value[1]} >{value[0]}: {value[1]}</h3>
-                        {(owner)?(
+                        {(owner)?( // Owner only view to kick players from club
                             <div>
                                 <button key = {value[2]} name={value[1]} onClick={()=>kickFromClub(value[2])} >
                             Kick
@@ -77,7 +75,7 @@ const ClubPage = () =>{
                 </div>
             ))}
             {(owner)?(
-                <button onClick={()=>deleteClub()}>Delete Club</button>
+                <button onClick={()=>deleteClub()}>Delete Club</button> //Deletes Club
             ):(<div></div>)}
         </div>
     ):(

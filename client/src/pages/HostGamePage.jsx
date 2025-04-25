@@ -24,12 +24,12 @@ const HostGamePage = () =>{
     }
 
     const checkWinner = async()=>{
-        const resp = await httpClient.post(apiRoute+roomCode+"/checkWinner")
+        const resp = await httpClient.post(apiRoute+"host/game/"+roomCode+"/checkWinner")
         setWinner(resp.data["winner"])
     }
 
     const defaultWinner= async()=>{
-        const resp = await httpClient.post(apiRoute+roomCode+"/backToGame")
+        const resp = await httpClient.post(apiRoute+"host/game/"+roomCode+"/backToGame")
         setWinner('')
     }
 
