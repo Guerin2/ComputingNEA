@@ -457,7 +457,7 @@ def getPlayerClubs():
     return jsonify({"Clubs": arr}),200
 
 @app.route("/clubs/clubLeaderboard",methods = ["POST"])
-def getLeaderBoard(clubId):
+def getLeaderBoard():
     id = session.get("user_id")
     clubId = request.json["clubId"]
     conn = sqlite3.connect(dbPath)

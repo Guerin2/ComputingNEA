@@ -40,7 +40,7 @@ const ClubPage = () =>{
 
     useEffect(() => { //Get all information for the club
                 (async () =>{
-                    const resp = await httpClient.post(apiRoute+"clubs/clubLeaderboard/",{
+                    const resp = await httpClient.post(apiRoute+"clubs/clubLeaderboard",{
                         "clubId":clubId
                 })
                     console.log(resp.status)
@@ -52,8 +52,6 @@ const ClubPage = () =>{
                     }
                 )()
             },[])
-
-
 
     return(
         <div>

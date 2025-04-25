@@ -52,10 +52,6 @@ const ClubsPage = () =>{
         window.location.assign("/clubs/"+arg)
     }
 
-    const goHome = async()=>{
-        window.location.assign("/")
-    }
-
 
     useEffect(() => { // data to make buttons for all user clubs
                 (async () =>{
@@ -134,7 +130,6 @@ const ClubsPage = () =>{
                     Submit
                 </button>
             </form>
-            <button onClick={()=>goHome()}>Home</button>
         </div>
     ):(
         <div>

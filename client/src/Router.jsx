@@ -9,6 +9,7 @@ import HostGamePage from './pages/HostGamePage'
 import ClubsPage from './pages/ClubsPage'
 import ClubPage from './pages/ClubPage'
 import NotFound from './pages/NotFound'
+import Navbar from './pages/navbar'
 
 
 
@@ -16,6 +17,7 @@ import NotFound from './pages/NotFound'
 const Router = () =>{
     return(
         <BrowserRouter>
+            <Navbar/>
             <Routes>
                 <Route path="/" exact element={<LandingPage/>}/>
                 <Route path="/login" exact element={<LoginPage/>}/>
